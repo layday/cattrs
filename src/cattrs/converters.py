@@ -198,7 +198,7 @@ class BaseConverter:
             else UnstructureStrategy.AS_TUPLE
         )
 
-    def register_unstructure_hook(self, cls: Any, func: Callable[[T], Any]) -> None:
+    def register_unstructure_hook(self, cls: Any, func: Callable[[Any], Any]) -> None:
         """Register a class-to-primitive converter function for a class.
 
         The converter function should take an instance of the class and return
