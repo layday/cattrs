@@ -184,7 +184,7 @@ class BaseConverter:
         # Unions are instances now, not classes. We use different registries.
         self._union_struct_registry: Dict[Any, Callable[[Any, Type[T]], T]] = {}
 
-    def unstructure(self, obj: Any, unstructure_as=None) -> Any:
+    def unstructure(self, obj: Any, unstructure_as: Optional[Any] = None) -> Any:
         return self._unstructure_func.dispatch(
             obj.__class__ if unstructure_as is None else unstructure_as
         )(obj)
