@@ -29,7 +29,6 @@ from typing import (
     _AnnotatedAlias,
     _GenericAlias,
     _SpecialGenericAlias,
-    _UnionGenericAlias,
     get_args,
     get_origin,
     get_type_hints,
@@ -256,7 +255,12 @@ def is_tuple(type):
     )
 
 
-if sys.version_info >= (3, 10):
+if sys.version_info >= (3, 14):
+
+    def is_union_type(obj):
+        return obj is Union
+elif sys.version_info >= (3, 10):
+    from typing import _UnionGenericAlias
 
     def is_union_type(obj):
         from types import UnionType
@@ -266,26 +270,24 @@ if sys.version_info >= (3, 10):
             or (isinstance(obj, _UnionGenericAlias) and obj.__origin__ is Union)
             or isinstance(obj, UnionType)
         )
-
-    def get_newtype_base(typ: Any) -> Optional[type]:
-        if typ is NewType or isinstance(typ, NewType):
-            return typ.__supertype__
-        return None
-
-    if sys.version_info >= (3, 11):
-        from typing import NotRequired, Required
-    else:
-        from typing_extensions import NotRequired, Required
-
 else:
     # 3.9
-    from typing_extensions import NotRequired, Required
+    from typing import _UnionGenericAlias
 
     def is_union_type(obj):
         return obj is Union or (
             isinstance(obj, _UnionGenericAlias) and obj.__origin__ is Union
         )
 
+
+if sys.version_info >= (3, 10):
+
+    def get_newtype_base(typ: Any) -> Optional[type]:
+        if typ is NewType or isinstance(typ, NewType):
+            return typ.__supertype__
+        return None
+else:
+    # 3.9
     def get_newtype_base(typ: Any) -> Optional[type]:
         supertype = getattr(typ, "__supertype__", None)
         if (
@@ -295,6 +297,12 @@ else:
         ):
             return supertype
         return None
+
+
+if sys.version_info >= (3, 11):
+    from typing import NotRequired, Required
+else:
+    from typing_extensions import NotRequired, Required
 
 
 def get_notrequired_base(type) -> Union[Any, NothingType]:
